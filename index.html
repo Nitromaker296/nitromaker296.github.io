@@ -557,7 +557,7 @@
   function startTumbleEmojis(){
     if (tumbleInterval) return;
     spawnTumbleEmoji();
-    tumbleInterval = setInterval(spawnTumbleEmoji, 2000);
+    tumbleInterval = setInterval(spawnTumbleEmoji, 1750);
   }
   function stopTumbleEmojis(){
     if (tumbleInterval){ clearInterval(tumbleInterval); tumbleInterval = null; }
