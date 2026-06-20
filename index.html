@@ -160,6 +160,10 @@
     text-align:center;
     box-shadow:0 6px 16px var(--shadow);
     transform:rotate(var(--tilt, 0deg));
+    transition:transform .18s ease;
+  }
+  .interest-card:hover{
+    transform:rotate(var(--tilt, 0deg)) scale(1.04);
   }
   html.dark .interest-card{
     background:var(--bg-card);
@@ -202,6 +206,33 @@
   .contact-row a{text-decoration:none;}
 
   /* ===================== QUIZ ===================== */
+  .quiz-menu{
+    max-width:520px; margin:24px auto 0;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+  }
+  .quiz-menu-btn{
+    width:100%;
+    background:var(--bg-card);
+    border:3px solid var(--teal);
+    border-radius:16px;
+    padding:20px 22px;
+    font-size:16px;
+    font-weight:700;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+    box-shadow:0 4px 14px var(--shadow);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .quiz-menu-btn:hover{transform:translateY(-2px); border-color:var(--coral);}
+  .quiz-more-soon{color:var(--text-soft); font-size:14px; text-align:center; margin:0;}
+  .quiz-back{
+    background:none; border:none; cursor:pointer;
+    color:var(--text-soft); font-weight:600; font-size:14px;
+    margin:0 auto 14px; padding:0; display:block;
+  }
+  .quiz-back:hover{color:var(--text);}
   .quiz-box{
     max-width:520px; margin:20px auto 0;
     background:var(--bg-card);
@@ -315,9 +346,12 @@
 
   .tumble-emoji{
     position:fixed; left:0; top:0;
-    font-size:52px;
+    font-size:64px;
     z-index:1002;
     pointer-events:none;
+  }
+  @media (max-width:640px){
+    .tumble-emoji{font-size:52px;}
   }
   @keyframes tumbleAcross{
     0%{opacity:0; transform:translate(var(--sx), var(--sy)) rotate(0deg);}
@@ -379,17 +413,17 @@
     </div>
     <div class="intro-grid" id="introGrid"></div>
   </div>
-  <button class="skip-intro" id="skipIntro">Skip intro →</button>
-  <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+  <button type="button" class="skip-intro" id="skipIntro">Skip intro →</button>
+  <button type="button" class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
 
   <!-- ===================== REAL SITE ===================== -->
   <div id="siteWrap">
     <nav>
       <div class="nav-tabs">
-        <button class="nav-tab active" data-tab="home">Me</button>
-        <button class="nav-tab" data-tab="quiz">Trivia and games</button>
-        <button class="nav-tab" data-tab="funfacts">Facts about me!</button>
-        <button class="nav-tab" data-tab="contact">Contact</button>
+        <button type="button" class="nav-tab active" data-tab="home">Me</button>
+        <button type="button" class="nav-tab" data-tab="quiz">Trivia and games</button>
+        <button type="button" class="nav-tab" data-tab="funfacts">Facts about me!</button>
+        <button type="button" class="nav-tab" data-tab="contact">Contact</button>
       </div>
     </nav>
 
@@ -415,7 +449,7 @@
         <div class="contact-list">
           <div class="contact-row">
             <span class="k">Email</span>
-            <a class="v" href="mailto:Nitromaker296@gmail.com">itromaker296@gmail.com</a>
+            <a class="v" href="mailto:Nitromaker296@gmail.com">Nitromaker296@gmail.com</a>
           </div>
           <div class="contact-row">
             <span class="k">Discord</span>
@@ -423,14 +457,22 @@
           </div>
           <div class="contact-row">
             <span class="k">Instagram</span>
-            <span class="v">Private 😁</span>
+            <span class="v">Private <span style="font-style:normal;">😁</span></span>
           </div>
         </div>
       </section>
 
       <section id="quiz">
-        <h2 style="text-align:center;">How well do you know me?</h2>
-        <div class="quiz-box" id="quizBox"></div>
+        <h2 style="text-align:center;">Trivia &amp; Games</h2>
+        <div class="quiz-menu" id="quizMenu">
+          <button type="button" class="quiz-menu-btn" id="openTriviaBtn">How well do you know Aditya? (Trivia)</button>
+          <p class="quiz-more-soon">More coming soon ❤️👀</p>
+        </div>
+        <div id="quizPlayWrap" style="display:none;">
+          <button type="button" class="quiz-back" id="quizBackBtn">← Back to games</button>
+          <h2 style="text-align:center;">How well do you know me?</h2>
+          <div class="quiz-box" id="quizBox"></div>
+        </div>
       </section>
     </main>
   </div>
@@ -448,7 +490,7 @@
     'The roblox game SCP: Roleplay',
     'Likes Science (Astronomy and how the world works itself!)'
   ];
-  const palette = ['#FFC93C','#FF6B6B','#2EC4B6','#A78BFA','#4FB6E8','#FF8FB1','#6BCB77','#FFA552','#5AD1E6'];
+  const palette = ['#F2BF39','#F26666','#2CBAAD','#9F84EE','#4BADDC','#F288A8','#66C171','#F29D4E','#56C7DB'];
 
   const quizQuestions = [
     {q:"What's my favorite Roblox game?", options:["Rivals","SCP: Roleplay","99 Nights In The Forest","Grow a Garden"], correct:1},
@@ -601,6 +643,7 @@
   }
 
   document.getElementById('skipIntro').addEventListener('click', () => {
+    stopTumbleEmojis();
     document.body.classList.remove('intro-active');
     introOverlay.style.display = 'none';
   });
@@ -618,7 +661,7 @@
         <div class="quiz-result">
           <div class="score">${qScore}/${quizQuestions.length}</div>
           <p>${qScore === quizQuestions.length ? "Perfect! You really know me 🎉" : qScore >= 3 ? "Not quite! 🙌" : "Still don't know me that well but that's alrrr !!😁"}</p>
-          <button class="quiz-restart" id="quizRestart">Play Again</button>
+          <button type="button" class="quiz-restart" id="quizRestart">Play Again</button>
         </div>`;
       document.getElementById('quizRestart').addEventListener('click', () => {
         qIndex = 0; qScore = 0; renderQuestion();
@@ -630,9 +673,9 @@
       <div class="quiz-progress">Question ${qIndex + 1} of ${quizQuestions.length}</div>
       <div class="quiz-question">${item.q}</div>
       <div class="quiz-options">
-        ${item.options.map((opt, i) => `<button class="quiz-opt" data-i="${i}">${opt}</button>`).join('')}
+        ${item.options.map((opt, i) => `<button type="button" class="quiz-opt" data-i="${i}">${opt}</button>`).join('')}
       </div>
-      <button class="quiz-next" id="quizNext">Next →</button>
+      <button type="button" class="quiz-next" id="quizNext">Next →</button>
     `;
     const optButtons = quizBox.querySelectorAll('.quiz-opt');
     optButtons.forEach(btn => {
@@ -654,7 +697,19 @@
       renderQuestion();
     });
   }
-  renderQuestion();
+  const quizMenu = document.getElementById('quizMenu');
+  const quizPlayWrap = document.getElementById('quizPlayWrap');
+
+  document.getElementById('openTriviaBtn').addEventListener('click', () => {
+    quizMenu.style.display = 'none';
+    quizPlayWrap.style.display = 'block';
+    qIndex = 0; qScore = 0;
+    renderQuestion();
+  });
+  document.getElementById('quizBackBtn').addEventListener('click', () => {
+    quizPlayWrap.style.display = 'none';
+    quizMenu.style.display = 'flex';
+  });
 </script>
 </body>
 </html>
