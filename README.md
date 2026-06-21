@@ -2,4 +2,4 @@
 My personal website!! https://nitromaker296.github.io
 
 
-(built with AI)
+(coded with AI, only the code with AI)
