@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nitro Maker</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ===================== THEME TOKENS ===================== */
+  :root{
+    --bg:#FCFCF5;
+    --bg-card:#FFFFFF;
+    --bg-card-soft:#FFF8E6;
+    --yellow:#FFC93C;
+    --yellow-deep:#F4A100;
+    --teal:#2EC4B6;
+    --coral:#FF6B6B;
+    --text:#2B2B2B;
+    --text-soft:#74726A;
+    --nav-bg:#232136;
+    --nav-text:#FFFFFF;
+    --shadow:rgba(43,43,43,0.14);
+    --border:rgba(43,43,43,0.08);
+  }
+  html.dark{
+    --bg:#14141F;
+    --bg-card:#1E1E2E;
+    --bg-card-soft:#23233A;
+    --yellow:#FFC93C;
+    --yellow-deep:#FFD56A;
+    --teal:#3ED9A8;
+    --coral:#FF7E7E;
+    --text:#F2F2F0;
+    --text-soft:#A8A8B8;
+    --nav-bg:#0B0B12;
+    --nav-text:#FFFFFF;
+    --shadow:rgba(0,0,0,0.45);
+    --border:rgba(255,255,255,0.08);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    transition:background .4s ease, color .4s ease;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{
+    font-family:'Baloo 2', sans-serif;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  /* respect reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ===================== SITE WRAPPER (blurs during intro) ===================== */
+  #siteWrap{
+    transition:filter .7s ease;
+    min-height:100vh;
+  }
+  body.intro-active #siteWrap{
+    filter:blur(14px);
+    pointer-events:none;
+    user-select:none;
+  }
+  body.intro-active{
+    overflow:hidden;
+    height:100vh;
+  }
+
+  /* ===================== NAV ===================== */
+  nav{
+    position:sticky; top:0; z-index:40;
+    background:var(--nav-bg);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px;
+    box-shadow:0 2px 14px var(--shadow);
+  }
+  .nav-tabs{display:flex; gap:22px; flex-wrap:wrap;}
+  .nav-tab{
+    background:none; border:none; cursor:pointer;
+    color:var(--nav-text);
+    font-weight:700;
+    font-size:16px;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    letter-spacing:0.2px;
+    padding:4px 2px;
+    border-bottom:2px solid transparent;
+    opacity:0.78;
+    transition:opacity .2s ease, border-color .2s ease;
+  }
+  .nav-tab:hover{opacity:1;}
+  .nav-tab.active{opacity:1; border-bottom:2px solid var(--yellow);}
+  .theme-toggle{
+    position:fixed; top:16px; right:18px; z-index:1001;
+    background:var(--nav-bg);
+    border:none; cursor:pointer;
+    color:var(--nav-text);
+    width:40px; height:40px; border-radius:50%;
+    font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px var(--shadow);
+    transition:transform .2s ease;
+  }
+  .theme-toggle:hover{transform:rotate(15deg) scale(1.06);}
+
+  /* ===================== HERO / HOME ===================== */
+  main{max-width:980px; margin:0 auto; padding:0 22px 80px;}
+  section{display:none; padding-top:46px;}
+  section.active{display:block;}
+
+  .home-tagline{
+    font-size:clamp(22px, 4vw, 34px);
+    font-weight:700;
+    text-align:center;
+    margin:34px auto 8px;
+    max-width:680px;
+    line-height:1.35;
+  }
+  .home-name{
+    text-align:center;
+    margin-bottom:10px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(28px, 6vw, 42px);
+    letter-spacing:0.5px;
+    background:linear-gradient(90deg, var(--yellow-deep), var(--coral), var(--teal));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow:2px 3px 0 rgba(43,43,43,0.08);
+  }
+  html.dark .home-name{text-shadow:2px 3px 0 rgba(0,0,0,0.35);}
+
+  .interests-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:14px;
+    margin:38px auto 10px;
+    padding:0 18px;
+  }
+  @media (max-width:640px){
+    .interests-grid{gap:8px; padding:0 10px;}
+    .interest-card{padding:10px 5px; min-height:78px;}
+  }
+  .interest-card{
+    background:var(--accent, var(--bg-card));
+    color:#fff;
+    border-radius:16px;
+    padding:16px 10px;
+    min-height:90px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    box-shadow:0 6px 16px var(--shadow);
+    transform:rotate(var(--tilt, 0deg));
+    transition:transform .18s ease;
+  }
+  .interest-card:hover{
+    transform:rotate(var(--tilt, 0deg)) scale(1.04);
+  }
+  html.dark .interest-card{
+    background:var(--bg-card);
+    color:var(--accent, var(--text));
+    border:2px solid var(--accent, var(--border));
+  }
+  .interest-card .label{font-size:clamp(12.5px,1.6vw,16px); font-weight:700; line-height:1.3;}
+
+  /* ===================== FUN FACT ===================== */
+  .funfact-card{
+    background:var(--bg-card);
+    border-radius:22px;
+    padding:38px 28px;
+    max-width:480px;
+    margin:30px auto;
+    text-align:center;
+    box-shadow:0 8px 26px var(--shadow);
+    border:2px dashed var(--yellow);
+  }
+  .funfact-card .emoji{font-size:48px; display:block; margin-bottom:10px;}
+  .funfact-card h3{margin:0 0 6px; font-size:22px;}
+  .funfact-card p{margin:0; color:var(--text-soft); font-size:15px;}
+  .funfact-note{text-align:center; color:var(--text-soft); font-size:13px; margin-top:18px;}
+
+  /* ===================== CONTACT ===================== */
+  .contact-list{
+    max-width:460px; margin:24px auto 0;
+    font-style:italic;
+  }
+  .contact-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 20px;
+    background:var(--bg-card);
+    border-radius:14px;
+    margin-bottom:12px;
+    box-shadow:0 3px 12px var(--shadow);
+  }
+  .contact-row .k{color:var(--text-soft); font-size:14px;}
+  .contact-row .v{font-weight:600; font-size:15px;}
+  .contact-row a{text-decoration:none;}
+
+  /* ===================== QUIZ ===================== */
+  .quiz-menu{
+    max-width:520px; margin:24px auto 0;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+  }
+  .quiz-menu-btn{
+    width:100%;
+    background:var(--bg-card);
+    border:3px solid var(--teal);
+    border-radius:16px;
+    padding:20px 22px;
+    font-size:16px;
+    font-weight:700;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    color:var(--text);
+    cursor:pointer;
+    text-align:center;
+    box-shadow:0 4px 14px var(--shadow);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .quiz-menu-btn:hover{transform:translateY(-2px); border-color:var(--coral);}
+  .quiz-more-soon{color:var(--text-soft); font-size:14px; text-align:center; margin:0;}
+  .quiz-back{
+    background:none; border:none; cursor:pointer;
+    color:var(--text-soft); font-weight:600; font-size:14px;
+    margin:0 auto 14px; padding:0; display:block;
+  }
+  .quiz-back:hover{color:var(--text);}
+  .quiz-box{
+    max-width:520px; margin:20px auto 0;
+    background:var(--bg-card);
+    border-radius:20px;
+    padding:28px;
+    box-shadow:0 8px 26px var(--shadow);
+  }
+  .quiz-progress{font-size:13px; color:var(--text-soft); margin-bottom:10px; font-weight:600;}
+  .quiz-question{font-size:19px; font-weight:700; margin-bottom:18px; font-family:'Baloo 2', sans-serif;}
+  .quiz-options{display:flex; flex-direction:column; gap:10px;}
+  .quiz-opt{
+    text-align:left;
+    padding:13px 16px;
+    border-radius:12px;
+    border:2px solid var(--border);
+    background:var(--bg-card-soft);
+    cursor:pointer;
+    font-size:15px;
+    color:var(--text);
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .quiz-opt:hover:not(:disabled){transform:translateX(3px); border-color:var(--yellow);}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-opt.correct{background:rgba(46,196,182,0.18); border-color:var(--teal);}
+  .quiz-opt.wrong{background:rgba(255,107,107,0.18); border-color:var(--coral);}
+  .quiz-next{
+    margin-top:18px;
+    background:var(--yellow);
+    border:none; padding:11px 22px;
+    border-radius:30px; font-weight:700;
+    cursor:pointer; font-size:14px;
+    display:none;
+  }
+  .quiz-result{text-align:center;}
+  .quiz-result .score{font-size:42px; font-weight:800; font-family:'Baloo 2', sans-serif; color:var(--yellow-deep);}
+  .quiz-result p{color:var(--text-soft);}
+  .quiz-restart{
+    background:var(--teal); color:#fff; border:none;
+    padding:11px 24px; border-radius:30px; font-weight:700; cursor:pointer; margin-top:10px;
+  }
+  .quiz-menu-btn.alt{border-color:var(--yellow);}
+
+  /* ===================== 2048 GAME ===================== */
+  .g2048-toprow{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    max-width:420px; margin:18px auto 16px; flex-wrap:wrap;
+    font-size:13px; color:var(--text-soft); font-weight:700;
+  }
+  .g2048-score b{color:var(--text); font-size:14px;}
+  .g2048-restart{
+    background:var(--bg-card); border:2px solid var(--border); border-radius:20px;
+    padding:6px 14px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--text);
+  }
+  .g2048-restart:hover{border-color:var(--yellow);}
+
+  .game-2048-area{
+    position:relative;
+    width:fit-content;
+    margin:0 auto;
+  }
+  .board-2048{
+    position:relative;
+    width:min(86vw, 380px); aspect-ratio:1/1;
+    border-radius:14px;
+    background:#bbada0;
+    touch-action:none;
+    overflow:hidden;
+  }
+  .board-2048-bg{position:absolute; inset:0;}
+  .cell-bg{
+    position:absolute;
+    width:calc(25% - 10px); height:calc(25% - 10px);
+    border-radius:8px;
+    background:rgba(255,255,255,0.18);
+  }
+  .tile-layer{position:absolute; inset:0;}
+  .tile{
+    position:absolute;
+    width:calc(25% - 10px); height:calc(25% - 10px);
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-family:'Baloo 2', sans-serif;
+    font-size:clamp(16px,5.5vw,26px);
+    transition:left .15s cubic-bezier(.2,.8,.2,1), top .15s cubic-bezier(.2,.8,.2,1);
+  }
+  .board-2048.no-anim .tile{transition:none;}
+  .tile.pop-in{animation:tilePopIn .2s ease;}
+  .tile.merged-pop{animation:tileMergePop .2s ease;}
+  @keyframes tilePopIn{from{transform:scale(0);} to{transform:scale(1);}}
+  @keyframes tileMergePop{0%{transform:scale(1);} 50%{transform:scale(1.15);} 100%{transform:scale(1);}}
+
+  .board-2048.theme-normal{background:#bbada0;}
+  .board-2048.theme-normal .cell-bg{background:rgba(238,228,218,0.35);}
+  .board-2048.theme-candy{background:#ffd3e8;}
+  .board-2048.theme-candy .cell-bg{background:rgba(255,255,255,0.45);}
+  .board-2048.theme-neon{background:#0a0a14;}
+  .board-2048.theme-neon .cell-bg{background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);}
+
+  .g2048-overlay{
+    position:absolute; inset:0; z-index:10;
+    background:rgba(0,0,0,0.6);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    border-radius:14px;
+  }
+  .g2048-overlay-text{color:#fff; font-family:'Baloo 2', sans-serif; font-size:24px; font-weight:800; text-align:center; padding:0 20px;}
+  .g2048-overlay-btn{
+    background:var(--yellow); border:none; padding:10px 22px; border-radius:24px;
+    font-weight:700; cursor:pointer;
+  }
+
+  .options-zone{
+    position:absolute; top:0; left:100%; height:100%;
+    width:210px;
+    display:flex; align-items:center;
+    z-index:6;
+  }
+  .sidebar-tab{
+    width:26px; height:56px;
+    background:var(--nav-bg); color:#fff;
+    border:none; border-radius:8px 0 0 8px;
+    cursor:pointer; font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+    position:relative; z-index:7; flex-shrink:0;
+  }
+  .options-panel{
+    position:absolute; top:50%; left:26px;
+    transform:translate(16px, -50%);
+    width:172px;
+    background:var(--bg-card);
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 10px 28px var(--shadow);
+    opacity:0;
+    transition:transform .25s ease, opacity .25s ease;
+    pointer-events:none;
+  }
+  .options-zone:hover .options-panel,
+  .options-zone.pinned .options-panel{
+    transform:translate(0,-50%);
+    opacity:1;
+    pointer-events:auto;
+  }
+  .anim-toggle-row{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:12.5px; font-weight:600; color:var(--text); margin-bottom:14px; gap:8px;
+  }
+  .switch{position:relative; display:inline-block; width:38px; height:21px; flex-shrink:0;}
+  .switch input{opacity:0; width:0; height:0; position:absolute;}
+  .switch-slider{position:absolute; inset:0; background:var(--border); border-radius:22px; cursor:pointer; transition:.2s;}
+  .switch-slider::before{content:''; position:absolute; width:15px; height:15px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s;}
+  .switch input:checked + .switch-slider{background:var(--teal);}
+  .switch input:checked + .switch-slider::before{transform:translateX(17px);}
+  .theme-buttons{display:flex; flex-direction:column; gap:8px;}
+  .theme-btn{
+    background:var(--bg-card-soft); border:2px solid var(--border); border-radius:10px;
+    padding:8px 10px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--text);
+    text-align:left;
+  }
+  .theme-btn.active{border-color:var(--yellow); background:rgba(255,201,60,0.15);}
+
+  .g2048-desc{
+    max-width:460px; margin:30px auto 0; padding:0 18px;
+    color:var(--text-soft); font-size:14px; line-height:1.6; text-align:center;
+  }
+
+  @media (hover:none), (max-width:640px){
+    .options-zone{
+      position:static; height:auto; width:100%;
+      display:block; margin:18px auto 0; max-width:300px;
+    }
+    .sidebar-tab{display:none;}
+    .options-panel,
+    .options-zone:hover .options-panel,
+    .options-zone.pinned .options-panel{
+      position:static; transform:none; opacity:1; pointer-events:auto;
+      width:100%; box-shadow:none; border:1px solid var(--border);
+    }
+    .theme-buttons{flex-direction:row; flex-wrap:wrap;}
+    .theme-btn{flex:1; min-width:80px;}
+  }
+
+  /* ===================== INTRO OVERLAY ===================== */
+  #introOverlay{
+    position:fixed; inset:0; z-index:999;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column;
+    background:transparent;
+    transition:opacity .7s ease;
+  }
+  #introOverlay.fade-out{opacity:0; pointer-events:none;}
+
+  .intro-tagline{
+    font-size:clamp(20px, 4.4vw, 32px);
+    font-weight:700;
+    text-align:center;
+    max-width:600px;
+    padding:0 24px;
+    opacity:0;
+    transform:scale(0.4);
+    transition:transform .7s cubic-bezier(.22,1,.36,1), opacity .7s cubic-bezier(.22,1,.36,1);
+  }
+  .intro-tagline.zoomed{
+    opacity:1;
+    transform:scale(1);
+  }
+  .intro-tagline.zoomed.rising{
+    transition:transform 1s cubic-bezier(0.65,0,0.35,1);
+    transform:translateY(-32vh);
+  }
+
+  .cycler{
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    width:min(80vw, 380px);
+    min-height:170px;
+    opacity:0;
+  }
+  .cycler.show{opacity:1;}
+  .cycle-box{
+    position:relative;
+    width:100%; min-height:170px;
+    background:var(--accent, var(--bg-card));
+    color:#fff;
+    border-radius:22px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.3);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer;
+    text-align:center;
+    padding:30px 24px;
+  }
+  html.dark .cycle-box{
+    background:var(--bg-card);
+    color:var(--accent, #fff);
+    border:2px solid var(--accent, var(--border));
+  }
+  .cycle-box .label{font-weight:800; font-size:clamp(18px,4.2vw,23px); line-height:1.3;}
+  .cycle-box .hint{
+    position:absolute; bottom:12px;
+    font-size:11px; font-weight:600; opacity:0.85;
+  }
+
+  @keyframes enterTop{from{transform:translateY(-110vh) scale(0.85); opacity:0;} to{transform:translateY(0) scale(1); opacity:1;}}
+  @keyframes enterBottom{from{transform:translateY(110vh) scale(0.85); opacity:0;} to{transform:translateY(0) scale(1); opacity:1;}}
+  @keyframes enterLeft{from{transform:translateX(-110vw) scale(0.85); opacity:0;} to{transform:translateX(0) scale(1); opacity:1;}}
+  @keyframes enterRight{from{transform:translateX(110vw) scale(0.85); opacity:0;} to{transform:translateX(0) scale(1); opacity:1;}}
+  .cycle-box.from-top{animation:enterTop .5s cubic-bezier(.22,1,.36,1) forwards;}
+  .cycle-box.from-bottom{animation:enterBottom .5s cubic-bezier(.22,1,.36,1) forwards;}
+  .cycle-box.from-left{animation:enterLeft .5s cubic-bezier(.22,1,.36,1) forwards;}
+  .cycle-box.from-right{animation:enterRight .5s cubic-bezier(.22,1,.36,1) forwards;}
+  .cycle-box.exiting{transition:opacity .18s ease-in, transform .18s ease-in; opacity:0; transform:scale(0.82);}
+
+  .tumble-emoji{
+    position:fixed; left:0; top:0;
+    font-size:64px;
+    z-index:1002;
+    pointer-events:none;
+  }
+  @media (max-width:640px){
+    .tumble-emoji{font-size:52px;}
+  }
+  @keyframes tumbleAcross{
+    0%{opacity:0; transform:translate(var(--sx), var(--sy)) rotate(0deg);}
+    12%{opacity:1;}
+    85%{opacity:1;}
+    100%{opacity:0; transform:translate(var(--ex), var(--ey)) rotate(900deg);}
+  }
+
+  .intro-grid{
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-46%);
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+    width:min(94vw, 720px);
+    padding:0 14px;
+    pointer-events:none;
+  }
+  .intro-grid .mini{
+    background:var(--accent, var(--bg-card));
+    color:#fff;
+    border-radius:14px;
+    padding:10px 6px;
+    min-height:64px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    box-shadow:0 6px 18px rgba(0,0,0,0.2);
+    opacity:0;
+    transform:scale(0.6);
+  }
+  html.dark .intro-grid .mini{
+    background:var(--bg-card);
+    color:var(--accent, #fff);
+    border:2px solid var(--accent, var(--border));
+  }
+  .intro-grid.show .mini{
+    animation:miniIn .45s cubic-bezier(.22,1,.36,1) forwards;
+  }
+  .intro-grid .mini .label{font-size:clamp(9.5px,1.6vw,11.5px); font-weight:700; line-height:1.25;}
+  @keyframes miniIn{from{opacity:0; transform:scale(0.6);} to{opacity:1; transform:scale(1);}}
+
+  .skip-intro{
+    position:fixed; bottom:22px; right:22px; z-index:1000;
+    background:rgba(0,0,0,0.5); color:#fff; border:none;
+    padding:9px 16px; border-radius:20px; font-size:12.5px; cursor:pointer;
+  }
+</style>
+</head>
+<body class="intro-active">
+
+  <!-- ===================== INTRO OVERLAY ===================== -->
+  <div id="introOverlay">
+    <div class="intro-tagline" id="introTagline">Hiii, I'm Nitro, and here are the things that interest me the most!</div>
+    <div class="cycler" id="cycler">
+      <div class="cycle-box" id="cycleBox">
+        <span class="label" id="cycleLabel"></span>
+        <span class="hint" id="cycleHint">Click for next</span>
+      </div>
+    </div>
+    <div class="intro-grid" id="introGrid"></div>
+  </div>
+  <button type="button" class="skip-intro" id="skipIntro">Skip intro →</button>
+  <button type="button" class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+
+  <!-- ===================== REAL SITE ===================== -->
+  <div id="siteWrap">
+    <nav>
+      <div class="nav-tabs">
+        <button type="button" class="nav-tab active" data-tab="home">Me</button>
+        <button type="button" class="nav-tab" data-tab="quiz">Trivia and games</button>
+        <button type="button" class="nav-tab" data-tab="funfacts">Facts about me!</button>
+        <button type="button" class="nav-tab" data-tab="contact">Contact</button>
+      </div>
+    </nav>
+
+    <main>
+      <section id="home" class="active">
+        <div class="home-name">Nitro Maker</div>
+        <h1 class="home-tagline">Hiii, I'm Nitro, and here are the things that interest me the most!</h1>
+        <div class="interests-grid" id="homeGrid"></div>
+      </section>
+
+      <section id="funfacts">
+        <h2 style="text-align:center;">Facts about me!</h2>
+        <div class="funfact-card">
+          <span class="emoji">🍛</span>
+          <h3>Favorite food</h3>
+          <p>Chicken Biryani… Best food in the world ong</p>
+        </div>
+        <p class="funfact-note">Lol I couldn't think of any more facts. DM me what I should put here 🤦‍♂️😅.........please</p>
+      </section>
+
+      <section id="contact">
+        <h2 style="text-align:center;">Contact</h2>
+        <div class="contact-list">
+          <div class="contact-row">
+            <span class="k">Email</span>
+            <a class="v" href="mailto:Nitromaker296@gmail.com">Nitromaker296@gmail.com</a>
+          </div>
+          <div class="contact-row">
+            <span class="k">Discord</span>
+            <span class="v">nit_romaker296</span>
+          </div>
+          <div class="contact-row">
+            <span class="k">Instagram</span>
+            <span class="v">Private <span style="font-style:normal;">😁</span></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="quiz">
+        <h2 style="text-align:center;">Trivia &amp; Games</h2>
+        <div class="quiz-menu" id="quizMenu">
+          <button type="button" class="quiz-menu-btn" id="openTriviaBtn">How well do you know me? (Trivia)</button>
+          <button type="button" class="quiz-menu-btn alt" id="openGame2048Btn">2048 (Tile Puzzle)</button>
+          <p class="quiz-more-soon">More coming soon ❤️👀</p>
+        </div>
+        <div id="quizPlayWrap" style="display:none;">
+          <button type="button" class="quiz-back" id="quizBackBtn">← Back to games</button>
+          <h2 style="text-align:center;">How well do you know me?</h2>
+          <div class="quiz-box" id="quizBox"></div>
+        </div>
+        <div id="game2048Wrap" style="display:none;">
+          <button type="button" class="quiz-back" id="game2048BackBtn">← Back to games</button>
+          <h2 style="text-align:center;">2048</h2>
+
+          <div class="g2048-toprow">
+            <span class="g2048-score">Score: <b id="g2048Score">0</b></span>
+            <span>⌨️ WASD / Arrow Keys · 📱 Swipe on mobile</span>
+            <button type="button" class="g2048-restart" id="g2048Restart">↻ New Game</button>
+          </div>
+
+          <div class="game-2048-area" id="game2048Area">
+            <div class="board-2048 theme-normal" id="board2048">
+              <div class="board-2048-bg" id="board2048Bg"></div>
+              <div class="tile-layer" id="tileLayer"></div>
+              <div class="g2048-overlay" id="g2048Overlay" style="display:none;">
+                <div class="g2048-overlay-text" id="g2048OverlayText"></div>
+                <button type="button" class="g2048-overlay-btn" id="g2048OverlayBtn">Try Again</button>
+              </div>
+            </div>
+
+            <div class="options-zone" id="optionsZone">
+              <button type="button" class="sidebar-tab" id="sidebarTab" aria-label="Toggle options">◀</button>
+              <div class="options-panel" id="optionsPanel">
+                <div class="anim-toggle-row">
+                  <span>Static movement</span>
+                  <label class="switch">
+                    <input type="checkbox" id="animToggle">
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="theme-buttons">
+                  <button type="button" class="theme-btn active" data-theme="normal">Normal</button>
+                  <button type="button" class="theme-btn" data-theme="candy">Pink Candy</button>
+                  <button type="button" class="theme-btn" data-theme="neon">Neon</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="g2048-desc">2048 is a sliding-tile puzzle where the goal is to combine identical numbers until you create a 2048 tile. You swipe the grid up, down, left, or right. Every time you swipe, matching numbers merge into their sum, and a new 2 or 4 spawns on the board.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+  /* ===================== DATA ===================== */
+  const interests = [
+    'Python',
+    'Tech',
+    'Big Avgeek',
+    'Big fan of Enola Holmes film franchise',
+    'Lego',
+    'Star Wars',
+    'Dinosaurs',
+    'The roblox game SCP: Roleplay',
+    'Likes Science (Astronomy and how the world works itself!)'
+  ];
+  const palette = ['#F2BF39','#F26666','#2CBAAD','#9F84EE','#4BADDC','#F288A8','#66C171','#F29D4E','#56C7DB'];
+
+  const quizQuestions = [
+    {q:"What's my most favourite Star Wars character?", options:["Obi-Wan","Anakin","Darth Vader","Grogu"], correct:1},
+    {q:"Am I a night owl or an early bird...?", options:["Night owl","Early bird","Sometimes a night owl","Neither!"], correct:2},
+    {q:"What's my favourite Lego set type?", options:["Star Wars","Technic","City","Creator"], correct:2},
+    {q:"What's my dream career? (Hope that becomes true one day!)", options:["Data Scientist","High-end AI Engineer","AI Architect","Machine Learning Engineer"], correct:1},
+    {q:"What's a food I can eat everyday for the rest of my life? (health not affected)", options:["Pizza","McDonald's/ Chicken Burger","Chicken Biriyani","Pav Bhaji 🤤"], correct:1}
+  ];
+
+  /* ===================== THEME TOGGLE ===================== */
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    themeToggle.textContent = isDark ? '🌝' : '🌚';
+  });
+
+  /* ===================== NAV TABS ===================== */
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  /* ===================== BUILD GRIDS ===================== */
+  function buildGrid(containerId, cardClass, withMiniDelay){
+    const container = document.getElementById(containerId);
+    interests.forEach((label, i) => {
+      const el = document.createElement('div');
+      el.className = cardClass;
+      el.style.setProperty('--accent', palette[i % palette.length]);
+      if (cardClass === 'interest-card'){
+        el.style.setProperty('--tilt', (Math.random() * 5 - 2.5).toFixed(2) + 'deg');
+      }
+      el.innerHTML = `<span class="label">${label}</span>`;
+      if (withMiniDelay) el.style.animationDelay = (i * 0.07) + 's';
+      container.appendChild(el);
+    });
+  }
+  buildGrid('homeGrid', 'interest-card', false);
+  buildGrid('introGrid', 'mini', true);
+
+  /* ===================== INTRO SEQUENCE ===================== */
+  let introIndex = -1;
+  const tagline = document.getElementById('introTagline');
+  const cycler = document.getElementById('cycler');
+  const cycleBox = document.getElementById('cycleBox');
+  const cycleLabel = document.getElementById('cycleLabel');
+  const cycleHint = document.getElementById('cycleHint');
+  const introGrid = document.getElementById('introGrid');
+  const introOverlay = document.getElementById('introOverlay');
+  const sides = ['from-top','from-bottom','from-left','from-right'];
+
+  function startIntro(){
+    requestAnimationFrame(() => {
+      tagline.classList.add('zoomed');
+    });
+    tagline.addEventListener('transitionend', function onZoomEnd(e){
+      if (e.propertyName !== 'transform') return;
+      tagline.removeEventListener('transitionend', onZoomEnd);
+      setTimeout(() => {
+        tagline.classList.add('rising');
+        tagline.addEventListener('transitionend', showFirstBox, {once:true});
+      }, 900);
+    });
+  }
+
+  function showFirstBox(){
+    cycler.classList.add('show');
+    nextInterest();
+  }
+
+  const reactionEmojis = ['🤯','🥳','😆','😝','😎','🤓','🫡','😑','😁'];
+  let tumbleInterval = null;
+
+  function spawnTumbleEmoji(){
+    const emoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)];
+    const el = document.createElement('span');
+    el.className = 'tumble-emoji';
+    el.textContent = emoji;
+
+    const w = window.innerWidth, h = window.innerHeight;
+    const edge = ['top','bottom','left','right'][Math.floor(Math.random() * 4)];
+    let sx, sy, ex, ey;
+    if (edge === 'left'){
+      sx = -50; sy = Math.random() * h; ex = w + 50; ey = sy + (Math.random() * 240 - 120);
+    } else if (edge === 'right'){
+      sx = w + 50; sy = Math.random() * h; ex = -50; ey = sy + (Math.random() * 240 - 120);
+    } else if (edge === 'top'){
+      sy = -50; sx = Math.random() * w; ey = h + 50; ex = sx + (Math.random() * 240 - 120);
+    } else {
+      sy = h + 50; sx = Math.random() * w; ey = -50; ex = sx + (Math.random() * 240 - 120);
+    }
+    el.style.setProperty('--sx', sx + 'px');
+    el.style.setProperty('--sy', sy + 'px');
+    el.style.setProperty('--ex', ex + 'px');
+    el.style.setProperty('--ey', ey + 'px');
+    el.style.animation = 'tumbleAcross 3s linear forwards';
+
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3100);
+  }
+
+  function startTumbleEmojis(){
+    if (tumbleInterval) return;
+    spawnTumbleEmoji();
+    tumbleInterval = setInterval(spawnTumbleEmoji, 1750);
+  }
+  function stopTumbleEmojis(){
+    if (tumbleInterval){ clearInterval(tumbleInterval); tumbleInterval = null; }
+  }
+
+  function nextInterest(){
+    introIndex++;
+    if (introIndex >= interests.length){
+      finishCycle();
+      return;
+    }
+    cycleLabel.textContent = interests[introIndex];
+    cycleHint.textContent = (introIndex === interests.length - 1) ? 'Click to see them all' : 'Click for next';
+    cycleBox.style.setProperty('--accent', palette[introIndex % palette.length]);
+    cycleBox.classList.remove(...sides, 'exiting');
+    cycleBox.style.animation = '';
+    void cycleBox.offsetWidth;
+    const side = sides[Math.floor(Math.random() * sides.length)];
+    cycleBox.classList.add(side);
+  }
+
+  cycleBox.addEventListener('click', () => {
+    if (cycleBox.classList.contains('exiting')) return;
+    startTumbleEmojis();
+    cycleBox.style.animation = 'none';
+    void cycleBox.offsetWidth;
+    cycleBox.classList.add('exiting');
+    setTimeout(nextInterest, 180);
+  });
+
+  function finishCycle(){
+    stopTumbleEmojis();
+    cycler.classList.remove('show');
+    introGrid.classList.add('show');
+    const totalDelay = interests.length * 70 + 600;
+    setTimeout(() => {
+      document.body.classList.remove('intro-active');
+      introOverlay.classList.add('fade-out');
+      setTimeout(() => { introOverlay.style.display = 'none'; }, 700);
+    }, totalDelay);
+  }
+
+  document.getElementById('skipIntro').addEventListener('click', () => {
+    stopTumbleEmojis();
+    document.body.classList.remove('intro-active');
+    introOverlay.style.display = 'none';
+  });
+
+  startIntro();
+
+  /* ===================== QUIZ ===================== */
+  let qIndex = 0;
+  let qScore = 0;
+  const quizBox = document.getElementById('quizBox');
+
+  function renderQuestion(){
+    if (qIndex >= quizQuestions.length){
+      quizBox.innerHTML = `
+        <div class="quiz-result">
+          <div class="score">${qScore}/${quizQuestions.length}</div>
+          <p>${qScore === quizQuestions.length ? "Wow! You really know me 🎉 (and have realised that I'm an absolute NPC...)" : qScore >= 3 ? "Not quite! 🙌" : "Still don't know me that well but that's alrrr !!😁"}</p>
+          <button type="button" class="quiz-restart" id="quizRestart">Play Again</button>
+        </div>`;
+      document.getElementById('quizRestart').addEventListener('click', () => {
+        qIndex = 0; qScore = 0; renderQuestion();
+      });
+      return;
+    }
+    const item = quizQuestions[qIndex];
+    quizBox.innerHTML = `
+      <div class="quiz-progress">Question ${qIndex + 1} of ${quizQuestions.length}</div>
+      <div class="quiz-question">${item.q}</div>
+      <div class="quiz-options">
+        ${item.options.map((opt, i) => `<button type="button" class="quiz-opt" data-i="${i}">${opt}</button>`).join('')}
+      </div>
+      <button type="button" class="quiz-next" id="quizNext">Next →</button>
+    `;
+    const optButtons = quizBox.querySelectorAll('.quiz-opt');
+    optButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const chosen = parseInt(btn.dataset.i);
+        optButtons.forEach(b => b.disabled = true);
+        if (chosen === item.correct){
+          btn.classList.add('correct');
+          qScore++;
+        } else {
+          btn.classList.add('wrong');
+          optButtons[item.correct].classList.add('correct');
+        }
+        document.getElementById('quizNext').style.display = 'inline-block';
+      });
+    });
+    document.getElementById('quizNext').addEventListener('click', () => {
+      qIndex++;
+      renderQuestion();
+    });
+  }
+  const quizMenu = document.getElementById('quizMenu');
+  const quizPlayWrap = document.getElementById('quizPlayWrap');
+
+  document.getElementById('openTriviaBtn').addEventListener('click', () => {
+    quizMenu.style.display = 'none';
+    quizPlayWrap.style.display = 'block';
+    qIndex = 0; qScore = 0;
+    renderQuestion();
+  });
+  document.getElementById('quizBackBtn').addEventListener('click', () => {
+    quizPlayWrap.style.display = 'none';
+    quizMenu.style.display = 'flex';
+  });
+
+  /* ===================== 2048 GAME ===================== */
+  (function(){
+    const SIZE = 4;
+    let board = [];
+    let tileIdSeq = 1;
+    let score = 0;
+    let animEnabled = true;
+    let currentTheme = 'normal';
+    let gameLocked = false;
+    let animating = false;
+    let wonShown = false;
+
+    const boardEl = document.getElementById('board2048');
+    const bgEl = document.getElementById('board2048Bg');
+    const tileLayer = document.getElementById('tileLayer');
+    const scoreEl = document.getElementById('g2048Score');
+    const overlayEl = document.getElementById('g2048Overlay');
+    const overlayTextEl = document.getElementById('g2048OverlayText');
+    const overlayBtnEl = document.getElementById('g2048OverlayBtn');
+    const game2048Wrap = document.getElementById('game2048Wrap');
+    const tileElements = new Map();
+
+    const themeColors = {
+      normal:{2:['#eee4da','#776e65'],4:['#ede0c8','#776e65'],8:['#f2b179','#fff'],16:['#f59563','#fff'],32:['#f67c5f','#fff'],64:['#f65e3b','#fff'],128:['#edcf72','#fff'],256:['#edcc61','#fff'],512:['#edc850','#fff'],1024:['#edc53f','#fff'],2048:['#edc22e','#fff'],super:['#3c3a32','#fff']},
+      candy:{2:['#ffe1ef','#9c2f63'],4:['#ffc4e1','#9c2f63'],8:['#ff9ecf','#fff'],16:['#ff7ac0','#fff'],32:['#ff57ad','#fff'],64:['#f23c9a','#fff'],128:['#d946d9','#fff'],256:['#c026c0','#fff'],512:['#a21caf','#fff'],1024:['#86198f','#fff'],2048:['#701a75','#fff'],super:['#4a044e','#fff']},
+      neon:{2:['#0d0d16','#0ff'],4:['#0d0d16','#0ff'],8:['#0d0d16','#ff00de'],16:['#0d0d16','#ff00de'],32:['#0d0d16','#39ff14'],64:['#0d0d16','#39ff14'],128:['#0d0d16','#fff01f'],256:['#0d0d16','#fff01f'],512:['#0d0d16','#ff6f00'],1024:['#0d0d16','#ff6f00'],2048:['#0d0d16','#ff3131'],super:['#0d0d16','#fff']}
+    };
+
+    function getTileColor(value){
+      const set = themeColors[currentTheme] || themeColors.normal;
+      return set[value] || set.super;
+    }
+    function emptyBoard(){ return Array.from({length:SIZE}, () => Array(SIZE).fill(null)); }
+    function cellPos(row, col){ return {left:`calc(${col} * 25% + 5px)`, top:`calc(${row} * 25% + 5px)`}; }
+
+    function buildBackground(){
+      bgEl.innerHTML = '';
+      for(let r=0;r<SIZE;r++){
+        for(let c=0;c<SIZE;c++){
+          const cell = document.createElement('div');
+          cell.className = 'cell-bg';
+          const pos = cellPos(r,c);
+          cell.style.left = pos.left;
+          cell.style.top = pos.top;
+          bgEl.appendChild(cell);
+        }
+      }
+    }
+
+    function emptyCells(b){
+      const cells = [];
+      for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(!b[r][c]) cells.push([r,c]);
+      return cells;
+    }
+    function spawnRandomTile(b){
+      const cells = emptyCells(b);
+      if(!cells.length) return null;
+      const [r,c] = cells[Math.floor(Math.random()*cells.length)];
+      const value = Math.random() < 0.9 ? 2 : 4;
+      const tile = {id:tileIdSeq++, value, row:r, col:c};
+      b[r][c] = tile;
+      return tile;
+    }
+    function cloneBoard(b){ return b.map(row => row.map(cell => cell ? {...cell} : null)); }
+    function getLine(b, dir, index){
+      if(dir==='left') return [0,1,2,3].map(c=>b[index][c]);
+      if(dir==='right') return [3,2,1,0].map(c=>b[index][c]);
+      if(dir==='up') return [0,1,2,3].map(r=>b[r][index]);
+      return [3,2,1,0].map(r=>b[r][index]);
+    }
+    function setLine(b, dir, index, line){
+      if(dir==='left'){ for(let c=0;c<4;c++){ const t=line[c]; if(t){t.row=index;t.col=c;} b[index][c]=t; } }
+      else if(dir==='right'){ for(let c=0;c<4;c++){ const t=line[c]; const ac=3-c; if(t){t.row=index;t.col=ac;} b[index][ac]=t; } }
+      else if(dir==='up'){ for(let r=0;r<4;r++){ const t=line[r]; if(t){t.row=r;t.col=index;} b[r][index]=t; } }
+      else { for(let r=0;r<4;r++){ const t=line[r]; const ar=3-r; if(t){t.row=ar;t.col=index;} b[ar][index]=t; } }
+    }
+    function processLine(line){
+      const tiles = line.filter(t=>t!==null);
+      const result = [];
+      let gain = 0;
+      const merges = [];
+      let i=0;
+      while(i<tiles.length){
+        if(i+1<tiles.length && tiles[i].value===tiles[i+1].value){
+          const survivor = tiles[i], absorbed = tiles[i+1];
+          survivor.value *= 2;
+          gain += survivor.value;
+          merges.push({survivorId:survivor.id, absorbedId:absorbed.id});
+          result.push(survivor);
+          i+=2;
+        } else { result.push(tiles[i]); i+=1; }
+      }
+      while(result.length<4) result.push(null);
+      return {result, gain, merges};
+    }
+    function valueGrid(b){ return b.map(row => row.map(cell => cell ? cell.value : 0)); }
+    function gridsEqual(a,b){ for(let r=0;r<4;r++) for(let c=0;c<4;c++) if(a[r][c]!==b[r][c]) return false; return true; }
+    function findTileById(id){
+      for(let r=0;r<4;r++) for(let c=0;c<4;c++) if(board[r][c] && board[r][c].id===id) return board[r][c];
+      return null;
+    }
+    function canMoveAny(b){
+      for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+        if(!b[r][c]) return true;
+        const v = b[r][c].value;
+        if(c<3 && b[r][c+1] && b[r][c+1].value===v) return true;
+        if(r<3 && b[r+1][c] && b[r+1][c].value===v) return true;
+      }
+      return false;
+    }
+
+    function applyTileStyle(el, value){
+      const [bg, fg] = getTileColor(value);
+      el.style.background = bg;
+      el.style.color = fg;
+      if(currentTheme === 'neon'){
+        el.style.border = `2px solid ${fg}`;
+        el.style.boxShadow = `0 0 10px ${fg}, inset 0 0 6px ${fg}`;
+      } else {
+        el.style.border = 'none';
+        el.style.boxShadow = 'none';
+      }
+    }
+    function createTileEl(tile){
+      const el = document.createElement('div');
+      el.className = 'tile pop-in';
+      el.dataset.id = tile.id;
+      const pos = cellPos(tile.row, tile.col);
+      el.style.left = pos.left;
+      el.style.top = pos.top;
+      el.textContent = tile.value;
+      applyTileStyle(el, tile.value);
+      tileLayer.appendChild(el);
+      tileElements.set(tile.id, el);
+    }
+
+    function renderMove(merges, newTile){
+      for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+        const t = board[r][c];
+        if(!t) continue;
+        const el = tileElements.get(t.id);
+        if(!el) continue;
+        const pos = cellPos(t.row, t.col);
+        el.style.left = pos.left;
+        el.style.top = pos.top;
+      }
+      const delay = animEnabled ? 160 : 0;
+      merges.forEach(m => {
+        const absorbedEl = tileElements.get(m.absorbedId);
+        const survivorTile = findTileById(m.survivorId);
+        if(absorbedEl && survivorTile){
+          const pos = cellPos(survivorTile.row, survivorTile.col);
+          absorbedEl.style.left = pos.left;
+          absorbedEl.style.top = pos.top;
+          setTimeout(() => { absorbedEl.remove(); tileElements.delete(m.absorbedId); }, delay);
+        }
+        const survivorEl = tileElements.get(m.survivorId);
+        if(survivorEl && survivorTile){
+          setTimeout(() => {
+            survivorEl.textContent = survivorTile.value;
+            applyTileStyle(survivorEl, survivorTile.value);
+            survivorEl.classList.remove('pop-in','merged-pop');
+            void survivorEl.offsetWidth;
+            survivorEl.classList.add('merged-pop');
+          }, delay);
+        }
+      });
+      if(newTile) setTimeout(() => createTileEl(newTile), delay);
+    }
+
+    function showOverlay(won){
+      gameLocked = true;
+      overlayTextEl.textContent = won ? 'You hit 2048! 🎉' : 'Game Over!';
+      overlayBtnEl.textContent = won ? 'Keep Going' : 'Try Again';
+      overlayEl.dataset.mode = won ? 'win' : 'lose';
+      overlayEl.style.display = 'flex';
+    }
+    function checkWin(){
+      if(wonShown) return;
+      for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+        if(board[r][c] && board[r][c].value===2048){ wonShown = true; showOverlay(true); return; }
+      }
+    }
+
+    function attemptMove(dir){
+      if(animating || gameLocked) return;
+      const oldVG = valueGrid(board);
+      const newBoard = cloneBoard(board);
+      let totalGain = 0, allMerges = [];
+      for(let i=0;i<4;i++){
+        const line = getLine(newBoard, dir, i);
+        const {result, gain, merges} = processLine(line);
+        setLine(newBoard, dir, i, result);
+        totalGain += gain;
+        allMerges = allMerges.concat(merges);
+      }
+      if(gridsEqual(oldVG, valueGrid(newBoard))) return;
+
+      animating = true;
+      board = newBoard;
+      score += totalGain;
+      scoreEl.textContent = score;
+      const newTile = spawnRandomTile(board);
+      renderMove(allMerges, newTile);
+
+      setTimeout(() => {
+        animating = false;
+        if(!canMoveAny(board)){ showOverlay(false); }
+        else { checkWin(); }
+      }, animEnabled ? 200 : 20);
+    }
+
+    function newGame(){
+      board = emptyBoard();
+      score = 0;
+      wonShown = false;
+      gameLocked = false;
+      animating = false;
+      scoreEl.textContent = '0';
+      overlayEl.style.display = 'none';
+      tileLayer.innerHTML = '';
+      tileElements.clear();
+      const t1 = spawnRandomTile(board);
+      const t2 = spawnRandomTile(board);
+      if(t1) createTileEl(t1);
+      if(t2) createTileEl(t2);
+    }
+
+    function isGameViewActive(){
+      return document.getElementById('quiz').classList.contains('active') && game2048Wrap.style.display !== 'none';
+    }
+
+    overlayBtnEl.addEventListener('click', () => {
+      if(overlayEl.dataset.mode === 'win'){
+        overlayEl.style.display = 'none';
+        gameLocked = false;
+      } else {
+        newGame();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if(!isGameViewActive()) return;
+      const key = e.key.toLowerCase();
+      let dir = null;
+      if(key==='arrowup' || key==='w') dir='up';
+      else if(key==='arrowdown' || key==='s') dir='down';
+      else if(key==='arrowleft' || key==='a') dir='left';
+      else if(key==='arrowright' || key==='d') dir='right';
+      if(dir){ e.preventDefault(); attemptMove(dir); }
+    });
+
+    let touchStartX=0, touchStartY=0;
+    boardEl.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, {passive:true});
+    boardEl.addEventListener('touchend', (e) => {
+      if(animating || gameLocked) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if(Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+      if(Math.abs(dx) > Math.abs(dy)) attemptMove(dx > 0 ? 'right' : 'left');
+      else attemptMove(dy > 0 ? 'down' : 'up');
+    }, {passive:true});
+
+    document.getElementById('g2048Restart').addEventListener('click', newGame);
+
+    document.getElementById('animToggle').addEventListener('change', (e) => {
+      const staticMode = e.target.checked;
+      animEnabled = !staticMode;
+      boardEl.classList.toggle('no-anim', staticMode);
+    });
+
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTheme = btn.dataset.theme;
+        boardEl.className = 'board-2048 theme-' + currentTheme + (animEnabled ? '' : ' no-anim');
+        tileElements.forEach((el, id) => {
+          const t = findTileById(id);
+          if(t) applyTileStyle(el, t.value);
+        });
+        if(currentTheme === 'neon' && !document.documentElement.classList.contains('dark')){
+          document.documentElement.classList.add('dark');
+          themeToggle.textContent = '🌝';
+        }
+      });
+    });
+
+    document.getElementById('sidebarTab').addEventListener('click', () => {
+      document.getElementById('optionsZone').classList.toggle('pinned');
+    });
+
+    document.getElementById('openGame2048Btn').addEventListener('click', () => {
+      quizMenu.style.display = 'none';
+      game2048Wrap.style.display = 'block';
+      buildBackground();
+      newGame();
+    });
+    document.getElementById('game2048BackBtn').addEventListener('click', () => {
+      game2048Wrap.style.display = 'none';
+      quizMenu.style.display = 'flex';
+    });
+  })();
+</script>
+</body>
+</html>
